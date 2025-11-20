@@ -32,7 +32,7 @@ Mendapatkan data user berdasarkan NIP.
     "password": "Admin123#"
   }
 
-Response Sukses:
+- **Response Sukses:**
 
 JSON
 
@@ -44,7 +44,8 @@ JSON
     "area": "MI"
   }
 }
-2. Pengajuan Surat (Drafting)
+
+### 2. Pengajuan Surat (Drafting)
 Membuat draft surat baru. Status awal adalah PENDING_APPROVAL.
 
 Endpoint: POST /api/surat/ajukan
@@ -63,7 +64,7 @@ JSON
 }
 Catatan: tipe_surat bisa berisi "SATDIK", "LEMBAGA", atau "PANITIA".
 
-3. Proses Approval (Pimpinan)
+### 3. Proses Approval (Pimpinan)
 Pimpinan menyetujui atau menolak surat. Jika disetujui, nomor surat akan terbit otomatis.
 
 Endpoint: POST /api/surat/proses-approval
