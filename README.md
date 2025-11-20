@@ -18,42 +18,31 @@ Sistem Informasi Manajemen Persuratan (Backend) untuk Madrasah Istiqlal Jakarta.
 
 ## 🔌 Dokumentasi API
 
-Base URL (Production): `https://eoffice-mij-production.up.railway.app`
-Base URL (Local): `http://localhost:3000`
+- **Base URL (Production):** `https://mij-eoffice-production.up.railway.app`
+- **Base URL (Local):** `http://localhost:3000`
 
 ### 1. Login User
 Mendapatkan data user berdasarkan NIP.
 
 - **Endpoint:** `POST /api/login`
 - **Body (JSON):**
-  ```json
-  {
-    "nip": "20191101349",
-    "password": "Admin123#"
-  }
-
-- **Response Sukses:**
-
-JSON
-
+```json
 {
-  "message": "Login Berhasil",
-  "user": {
-    "nama": "Luthfiyah Nuur Janah, S.Kom",
-    "role": "STAFF_TU",
-    "area": "MI"
-  }
+  "nip": "20191101349",
+  "password": "123"
 }
+````
 
-### 2. Pengajuan Surat (Drafting)
-Membuat draft surat baru. Status awal adalah PENDING_APPROVAL.
+### 2\. Pengajuan Surat (Drafting)
 
-Endpoint: POST /api/surat/ajukan
+Membuat draft surat baru. Status awal adalah `PENDING_APPROVAL`.
 
-Body (JSON):
+  - **Endpoint:** `POST /api/surat/ajukan`
+  - **Body (JSON):**
 
-JSON
+<!-- end list -->
 
+```json
 {
   "nip_pengaju": "20191101349",
   "tipe_surat": "SATDIK", 
@@ -62,66 +51,79 @@ JSON
   "tujuan": "Orang Tua Siswa",
   "isi_ringkas": "Mengharap kehadiran..."
 }
-Catatan: tipe_surat bisa berisi "SATDIK", "LEMBAGA", atau "PANITIA".
+```
 
-### 3. Proses Approval (Pimpinan)
+*Catatan: `tipe_surat` bisa berisi "SATDIK", "LEMBAGA", atau "PANITIA".*
+
+### 3\. Proses Approval (Pimpinan)
+
 Pimpinan menyetujui atau menolak surat. Jika disetujui, nomor surat akan terbit otomatis.
 
-Endpoint: POST /api/surat/proses-approval
+  - **Endpoint:** `POST /api/surat/proses-approval`
+  - **Body (JSON):**
 
-Body (JSON):
+<!-- end list -->
 
-JSON
-
+```json
 {
   "id_surat": "KODE_UNIK_DARI_DATABASE",
   "nip_approver": "20090401060",
   "aksi": "APPROVE"
 }
-Catatan: Isi aksi dengan "REJECT" jika ingin menolak.
+```
 
-💻 Cara Menjalankan di Lokal (Laptop)
-Clone Repository
+*Catatan: Isi `aksi` dengan "REJECT" jika ingin menolak.*
 
-Bash
+-----
 
-git clone [https://github.com/kasubagumummij2024-byte/mij-eoffice-backend.git](https://github.com/kasubagumummij2024-byte/mij-eoffice-backend.git)
-cd mij-eoffice-backend
-Install Dependencies
+## 💻 Cara Menjalankan di Lokal (Laptop)
 
-Bash
+**1. Clone Repository**
 
+```bash
+git clone [https://github.com/kasubagumummij2024-byte/eoffice-mij.git](https://github.com/kasubagumummij2024-byte/eoffice-mij.git)
+cd eoffice-mij
+```
+
+**2. Install Dependencies**
+
+```bash
 npm install
-Konfigurasi Firebase
+```
 
-Pastikan anda memiliki file serviceAccountKey.json dari Firebase Console.
+**3. Konfigurasi Firebase**
 
-Letakkan file tersebut di root folder proyek.
+  - Pastikan anda memiliki file `serviceAccountKey.json` dari Firebase Console.
+  - Letakkan file tersebut di *root folder* proyek.
+  - **PENTING:** Jangan pernah upload file ini ke GitHub\!
 
-PENTING: Jangan pernah upload file ini ke GitHub!
+**4. Jalankan Server**
 
-Jalankan Server
-
-Bash
-
+```bash
 node app.js
-Server akan berjalan di http://localhost:3000.
+```
 
-📂 Struktur Database (Firestore)
-users: Menyimpan data pegawai (NIP sebagai Document ID).
+Server akan berjalan di `http://localhost:3000`.
 
-letters: Menyimpan data surat, status, dan history.
+-----
 
-counters: Menyimpan nomor urut terakhir untuk setiap unit & tahun.
+## 📂 Struktur Database (Firestore)
 
+  - **`users`**: Menyimpan data pegawai (NIP sebagai Document ID).
+  - **`letters`**: Menyimpan data surat, status, dan history.
+  - **`counters`**: Menyimpan nomor urut terakhir untuk setiap unit & tahun.
+
+<!-- end list -->
+
+````
 
 ---
 
-### Langkah Terakhir: Push ke GitHub
+### Langkah Update ke GitHub
 
-Setelah kamu simpan file di atas, jalankan perintah ini di terminal VS Code:
+Setelah kamu Paste kode di atas dan Save, lakukan update ke GitHub lewat terminal:
 
 ```bash
 git add README.md
-git commit -m "Add: Dokumentasi API lengkap"
+git commit -m "Fix: Merapikan tampilan dokumentasi README"
 git push
