@@ -31,3 +31,96 @@ Mendapatkan data user berdasarkan NIP.
     "nip": "20191101349",
     "password": "Admin123#"
   }
+
+Response Sukses:
+
+JSON
+
+{
+  "message": "Login Berhasil",
+  "user": {
+    "nama": "Luthfiyah Nuur Janah, S.Kom",
+    "role": "STAFF_TU",
+    "area": "MI"
+  }
+}
+2. Pengajuan Surat (Drafting)
+Membuat draft surat baru. Status awal adalah PENDING_APPROVAL.
+
+Endpoint: POST /api/surat/ajukan
+
+Body (JSON):
+
+JSON
+
+{
+  "nip_pengaju": "20191101349",
+  "tipe_surat": "SATDIK", 
+  "kode_unit": "MI",
+  "perihal": "Undangan Rapat Wali Murid",
+  "tujuan": "Orang Tua Siswa",
+  "isi_ringkas": "Mengharap kehadiran..."
+}
+Catatan: tipe_surat bisa berisi "SATDIK", "LEMBAGA", atau "PANITIA".
+
+3. Proses Approval (Pimpinan)
+Pimpinan menyetujui atau menolak surat. Jika disetujui, nomor surat akan terbit otomatis.
+
+Endpoint: POST /api/surat/proses-approval
+
+Body (JSON):
+
+JSON
+
+{
+  "id_surat": "KODE_UNIK_DARI_DATABASE",
+  "nip_approver": "20090401060",
+  "aksi": "APPROVE"
+}
+Catatan: Isi aksi dengan "REJECT" jika ingin menolak.
+
+💻 Cara Menjalankan di Lokal (Laptop)
+Clone Repository
+
+Bash
+
+git clone [https://github.com/kasubagumummij2024-byte/mij-eoffice-backend.git](https://github.com/kasubagumummij2024-byte/mij-eoffice-backend.git)
+cd mij-eoffice-backend
+Install Dependencies
+
+Bash
+
+npm install
+Konfigurasi Firebase
+
+Pastikan anda memiliki file serviceAccountKey.json dari Firebase Console.
+
+Letakkan file tersebut di root folder proyek.
+
+PENTING: Jangan pernah upload file ini ke GitHub!
+
+Jalankan Server
+
+Bash
+
+node app.js
+Server akan berjalan di http://localhost:3000.
+
+📂 Struktur Database (Firestore)
+users: Menyimpan data pegawai (NIP sebagai Document ID).
+
+letters: Menyimpan data surat, status, dan history.
+
+counters: Menyimpan nomor urut terakhir untuk setiap unit & tahun.
+
+
+---
+
+### Langkah Terakhir: Push ke GitHub
+
+Setelah kamu simpan file di atas, jalankan perintah ini di terminal VS Code:
+
+```bash
+git add README.md
+git commit -m "Add: Dokumentasi API lengkap"
+git push
