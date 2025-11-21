@@ -211,14 +211,11 @@ app.post("/api/surat/proses-approval", async (req, res) => {
       }
     }
 
-    // 4. Logika UTAMA: APPROVE vs REJECT
+// 4. Logika UTAMA: APPROVE, REJECT, REVISION
     let updateData = {};
 
     if (aksi === "APPROVE") {
-      // --- THE MAGIC HAPPENS HERE ---
-      // Generate Nomor Surat Otomatis
       const nomorBaru = await generateNomorSurat(db, letterData.tipe_surat, letterData.kode_unit);
-      
       updateData = {
         status: "APPROVED",
         nomor_surat: nomorBaru,
@@ -229,21 +226,28 @@ app.post("/api/surat/proses-approval", async (req, res) => {
         },
         approved_at: new Date().toISOString()
       };
-
     } else if (aksi === "REJECT") {
       updateData = {
         status: "REJECTED",
-        catatan_revisi: catatan_revisi || "Perbaiki draft",
+        catatan_revisi: catatan_revisi || "Ditolak Permanen", // Simpan alasan
         rejected_by: approverData.nama,
         rejected_at: new Date().toISOString()
       };
+    } else if (aksi === "REVISION") {
+      // LOGIC BARU: MINTA REVISI
+      updateData = {
+        status: "REVISION",
+        catatan_revisi: catatan_revisi, // Wajib ada catatan
+        checked_by: approverData.nama,
+        checked_at: new Date().toISOString()
+      };
     }
 
-    // 5. Simpan Perubahan ke Database
+    // 5. Simpan Perubahan
     await letterRef.update(updateData);
 
     res.json({
-      message: aksi === "APPROVE" ? "Surat Disetujui & Nomor Terbit!" : "Surat Ditolak.",
+      message: `Sukses! Status surat berubah menjadi ${aksi}`,
       data_final: updateData
     });
 
