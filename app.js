@@ -276,6 +276,45 @@ app.get("/api/surat/user/:nip", async (req, res) => {
   }
 });
 
+// --- ROUTE: LIHAT SURAT MASUK (Untuk Pimpinan) ---
+app.get("/api/surat/need-approval/:nip", async (req, res) => {
+  try {
+    const { nip } = req.params;
+
+    // 1. Cek Siapa yang Request?
+    const userDoc = await db.collection("users").doc(nip).get();
+    if (!userDoc.exists) return res.status(404).json({ message: "User not found" });
+    const userData = userDoc.data();
+
+    // 2. Ambil semua surat yang statusnya PENDING
+    // (Kita filter manual di sini agar logic Area-nya aman)
+    const snapshot = await db.collection("letters")
+      .where("status", "==", "PENDING_APPROVAL")
+      .where("approval_target", "==", userData.role) // Hanya ambil yg targetnya jabatan dia
+      .get();
+
+    const inbox = [];
+    snapshot.forEach(doc => {
+      const letter = { id: doc.id, ...doc.data() };
+      
+      // 3. Filter Tambahan: Cek Area Kerja (Kecuali Direktur, dia bebas)
+      if (userData.role === "DIRECTOR") {
+        inbox.push(letter);
+      } else {
+        // Jika Kamad, pastikan Unit surat == Area Kerja Kamad
+        if (letter.kode_unit === userData.area_kerja) {
+          inbox.push(letter);
+        }
+      }
+    });
+
+    res.json(inbox);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server berjalan di port ${PORT}`);
 });
