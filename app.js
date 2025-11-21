@@ -339,6 +339,38 @@ app.get("/api/surat/monitoring/all", async (req, res) => {
   }
 });
 
+// --- ROUTE: AMBIL DETAIL 1 SURAT (Untuk Edit) ---
+app.get("/api/surat/detail/:id", async (req, res) => {
+  try {
+    const doc = await db.collection("letters").doc(req.params.id).get();
+    if (!doc.exists) return res.status(404).json({ message: "Surat tidak ditemukan" });
+    res.json({ id: doc.id, ...doc.data() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// --- ROUTE: UPDATE SURAT (REVISI) ---
+app.put("/api/surat/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { perihal, tujuan, isi_ringkas } = req.body; // Data yang boleh diedit
+
+    await db.collection("letters").doc(id).update({
+      "konten.perihal": perihal,
+      "konten.tujuan": tujuan,
+      "konten.isi": isi_ringkas,
+      status: "PENDING_APPROVAL", // RESET STATUS JADI PENDING AGAR DIPERIKSA LAGI
+      catatan_revisi: "", // Kosongkan catatan revisi lama
+      updated_at: new Date().toISOString()
+    });
+
+    res.json({ message: "Surat berhasil direvisi dan diajukan kembali!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server berjalan di port ${PORT}`);
 });
