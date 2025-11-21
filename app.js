@@ -315,6 +315,26 @@ app.get("/api/surat/need-approval/:nip", async (req, res) => {
   }
 });
 
+// --- ROUTE: MONITORING SEMUA SURAT (KHUSUS KABAG TU) ---
+app.get("/api/surat/monitoring/all", async (req, res) => {
+  try {
+    // Ambil semua surat, urutkan dari yang terbaru
+    const snapshot = await db.collection("letters")
+      .orderBy("created_at", "desc")
+      .limit(100) // Batasi 100 surat terakhir biar gak berat
+      .get();
+
+    const allLetters = [];
+    snapshot.forEach(doc => {
+      allLetters.push({ id: doc.id, ...doc.data() });
+    });
+
+    res.json(allLetters);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server berjalan di port ${PORT}`);
 });
