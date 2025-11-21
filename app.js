@@ -33,7 +33,15 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const app = express();
 
-app.use(cors());
+// --- SETTING CORS BARU ---
+app.use(cors({
+  origin: "*", // Izinkan semua domain (termasuk localhost)
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+// -------------------------
+
 app.use(express.json());
 
 // --- ROUTE TEST SEDERHANA ---
