@@ -29,7 +29,7 @@ Mendapatkan data user berdasarkan NIP.
 ```json
 {
   "nip": "20191101349",
-  "password": "Admin123#"
+  "password": "123"
 }
 ````
 
