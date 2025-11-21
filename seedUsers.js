@@ -1,22 +1,22 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("./serviceAccountKey.json");
+// Pastikan path ini benar (sesuai setup env atau file json)
+let serviceAccount;
+if (process.env.FIREBASE_SECRET) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SECRET);
+} else {
+  serviceAccount = require("./serviceAccountKey.json");
+}
 
-// Inisialisasi Firebase
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+// Inisialisasi (Cek biar gak double init)
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 const db = admin.firestore();
 
-// DATA PEGAWAI (Sesuai Gambar)
-// Password default kita set: "123456" (Nanti bisa fitur ganti password)
-// Role mapping:
-// - Direktur -> 'DIRECTOR'
-// - Kamad -> 'KAMAD'
-// - Kabag -> 'KABAG'
-// - Staf TU -> 'STAFF_TU'
-// - Staf Administrasi Umum -> 'ADMIN_UMUM'
-
+// --- 1. DATA PEGAWAI (Format Nama Panjang) ---
 const usersData = [
   { nip: "20040801026", nama: "Taufik, S.H.I", area: "Istiqlal Boarding School", jabatan: "Kamad", role: "KAMAD" },
   { nip: "20230426397", nama: "Muhammad Ra'uf Akbar, S.Kom", area: "Istiqlal Boarding School", jabatan: "Staf TU", role: "STAFF_TU" },
@@ -37,29 +37,49 @@ const usersData = [
   { nip: "20250201448", nama: "Hilman Alfarobi, S.A.P", area: "Tata Usaha dan Umum", jabatan: "Staf Administrasi Umum", role: "ADMIN_UMUM" }
 ];
 
+// --- 2. KAMUS PENERJEMAH (MAPPING) ---
+// Mengubah Nama Panjang -> Kode Singkat Database
+const unitMapping = {
+  "Kelompok Bermain": "KB",
+  "Raudhatul Athfal": "RA",
+  "Madrasah Ibtidaiyah": "MI",
+  "Madrasah Tsanawiyah": "MTs",
+  "Madrasah Aliyah": "MA",
+  "Istiqlal Boarding School": "IBS",
+  "Keuangan, Humas, dan Kepegawaian": "KHK",
+  "Penjamin Mutu": "PM",
+  "Tata Usaha dan Umum": "TUUmum",
+  "Direktur": "DIR" // Direktur biasanya dianggap Satker Pusat atau bisa juga "DIR"
+};
+
 async function seedUsers() {
   const batch = db.batch();
   
-  console.log("🚀 Memulai proses import data pegawai...");
+  console.log("🚀 Memulai proses import data pegawai dengan Mapping Otomatis...");
 
   usersData.forEach((user) => {
-    // Kita gunakan NIP sebagai Document ID agar mudah dicari
     const userRef = db.collection("users").doc(user.nip);
     
+    // --- LOGIC MAPPING DI SINI ---
+    // Ambil kode singkat dari kamus, kalau tidak ada pakai nama aslinya
+    const kodeArea = unitMapping[user.area] || user.area;
+
     batch.set(userRef, {
       nip: user.nip,
       nama: user.nama,
-      area_kerja: user.area,
+      area_kerja: kodeArea, // <--- YANG DISIMPAN KE DB ADALAH KODE SINGKAT (MI, MTs, dll)
+      nama_unit_lengkap: user.area, // Opsional: Simpan juga nama lengkapnya buat display kalau perlu
       jabatan_asli: user.jabatan,
       role: user.role,
-      password: "Admin123#", // Password default sederhana (JANGAN GUNAKAN DI PRODUCTION TANPA HASHING/GANTI PASS)
+      password: "123", 
       created_at: new Date().toISOString()
     });
   });
 
   try {
     await batch.commit();
-    console.log(`✅ Sukses! ${usersData.length} Pegawai berhasil diimport ke Firestore.`);
+    console.log(`✅ Sukses! ${usersData.length} Pegawai berhasil diupdate.`);
+    console.log("Database sekarang menggunakan kode area singkat (Contoh: 'MI' bukan 'Madrasah Ibtidaiyah').");
   } catch (error) {
     console.error("❌ Gagal import data:", error);
   }
