@@ -252,6 +252,30 @@ app.post("/api/surat/proses-approval", async (req, res) => {
   }
 });
 
+// --- ROUTE: LIHAT SURAT SAYA (Berdasarkan NIP Pembuat) ---
+app.get("/api/surat/user/:nip", async (req, res) => {
+  try {
+    const { nip } = req.params;
+    
+    // Cari surat yang dibuat oleh NIP ini
+    const snapshot = await db.collection("letters")
+      .where("created_by.nip", "==", nip)
+      .get();
+
+    const suratList = [];
+    snapshot.forEach(doc => {
+      suratList.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Urutkan manual dari yang terbaru (biar tidak kena error Index Firestore)
+    suratList.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    res.json(suratList);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server berjalan di port ${PORT}`);
 });
