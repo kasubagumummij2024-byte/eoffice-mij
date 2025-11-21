@@ -67,8 +67,10 @@ app.post("/api/login", async (req, res) => {
     res.json({
       message: "Login Berhasil",
       user: {
+        nip: userData.nip,            // <--- TAMBAHAN PENTING
         nama: userData.nama,
         role: userData.role,
+        jabatan: userData.jabatan_asli, // <--- TAMBAHAN PENTING
         area: userData.area_kerja
       }
     });
